@@ -121,7 +121,7 @@ for (let data of localStorageItems) {
                 event.preventDefault();
 
                 // vérifier 
-                if (localStorageContent === undefined) {
+                if (localStorageItems === undefined) {
                     alert("Veuillez rajouter un produit au panier avant de passer commande");
 
                 } else {

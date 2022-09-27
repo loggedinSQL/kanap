@@ -24,10 +24,7 @@ for (let data of localStorageItems) {
             divImage.classList.add("cart__item__img");
             article.appendChild(divImage);
 
-            let image = document.createElement("img");
-            image.src = value.imageUrl;
-            image.alt = value.altTxt;
-            divImage.appendChild(image);
+            divImage.appendChild(createImage(value));
 
 
             let divContent = document.createElement("div");
@@ -62,57 +59,22 @@ for (let data of localStorageItems) {
             let quantity = document.createElement("p");
             quantity.textContent = "Qté :";
             divContentSettingsQuantity.appendChild(quantity);
+  
+            divContentSettingsQuantity.appendChild(changeQuantity(data));
 
-            let input = document.createElement("input");
-            input.classList.add("itemQuantity");
-            input.type = "number";
-            input.name = "itemQuantity";
-            input.min = 1;
-            input.max = 100;
-            input.value = data.quantity;
-            divContentSettingsQuantity.appendChild(input);
-
-            // modifier la quantité du produit dans le storage et enregistrer la
-            input.addEventListener("change", (event) => {
-                data.quantity = parseInt(event.target.value);
-                localStorage.setItem("cart", JSON.stringify(localStorageItems));
-                window.location.reload();
-            })
-            
 
             let divContentSettingsDelete = document.createElement("div");
             divContentSettingsDelete.classList.add("cart__item__content__settings__delete");
             divContentSettings.appendChild(divContentSettingsDelete);
 
-            let deleteItem = document.createElement("p");
-            deleteItem.classList.add("deleteItem");
-            deleteItem.textContent = "Supprimer";
-            divContentSettingsDelete.appendChild(deleteItem);
-
-            // supprimer le produit du localstorage
-            deleteItem.addEventListener('click', (e) => {
-                let deleteButtons = document.getElementsByClassName("deleteItem");
-                let cartStorage = JSON.parse(localStorage.getItem("cart"))
-
-                for (let i = 0; i < deleteButtons.length; i++) {
-                    let productToBeRemoved = e.target.closest("article");
-                    productToBeRemoved.remove();
-
-                    let productToBeRemovedId = productToBeRemoved.dataset.id;
-                    let productToBeRemovedColor = productToBeRemoved.dataset.color;
-                    let removedFromCart = cartStorage.filter((item) => item.id !== productToBeRemovedId || item.color !== productToBeRemovedColor); 
-                    
-                    cartStorage = removedFromCart;
-                    localStorage.setItem("cart", JSON.stringify(cartStorage));
-                    window.location.reload();
-                }
-            }) 
+            divContentSettingsDelete.appendChild(removeFromCart(data)); 
 
 
             // afficher la quantité totale et le tarif total du panier
             totalQuantity += parseInt(data.quantity);
-            totalPrice += value.price * data.quantity;
             document.getElementById("totalQuantity").textContent = totalQuantity;
+
+            totalPrice += value.price * data.quantity;
             document.getElementById("totalPrice").textContent = totalPrice;
 
 
@@ -146,27 +108,50 @@ for (let data of localStorageItems) {
                         let cityErrorMsg = document.querySelector("#cityErrorMsg");
                         let emailErrorMsg = document.querySelector("#emailErrorMsg");
 
+                        let isValid = true;
+
+
                         if (!regName.test(firstName)) {
-
                             firstNameErrorMsg.textContent = "Veuillez ressaisir votre prénom";
-
-                        } else if (!regName.test(lastName)) {
-
-                            lastNameErrorMsg.textContent = "Veuillez ressaisir votre nom de famille";
-
-                        } else if (!regAddress.test(address)) {
-
-                            addressErrorMsg.textContent = "Veuillez ressaisir votre adresse";
-
-                        } else if (!regAddress.test(city)) {
-
-                            cityErrorMsg.textContent = "Veuillez ressaisir le nom de votre ville";
-
-                        } else if (!regEmail.test(email)) {
-
-                            emailErrorMsg.textContent = "Veuillez ressaisir votre email";
-
+                            isValid = false;
                         } else {
+                            firstNameErrorMsg.textContent = "";
+                        }
+                        
+
+                        if (!regName.test(lastName)) {
+                            lastNameErrorMsg.textContent = "Veuillez ressaisir votre nom de famille";
+                            isValid = false;
+                        } else {
+                            lastNameErrorMsg.textContent = "";
+                        }
+                        
+
+                        if (!regAddress.test(address)) {
+                            addressErrorMsg.textContent = "Veuillez ressaisir votre adresse";
+                            isValid = false;
+                        } else {
+                            addressErrorMsg.textContent = "";
+                        }
+                        
+
+                        if (!regAddress.test(city)) {
+                            cityErrorMsg.textContent = "Veuillez ressaisir le nom de votre ville";
+                            isValid = false;
+                        } else {
+                            cityErrorMsg.textContent = "";
+                        }
+                        
+                        
+                        if (!regEmail.test(email)) {
+                            emailErrorMsg.textContent = "Veuillez ressaisir votre email";
+                            isValid = false;
+                        } else {
+                            emailErrorMsg.textContent = "";
+                        }
+                        
+                        
+                        if (isValid) {
                             let products = JSON.parse(localStorage.getItem("cart"));
                             let productsId = [];
 
@@ -212,5 +197,63 @@ for (let data of localStorageItems) {
         .catch(err => {
             // une erreur est survenue
         })
+}
+
+
+// ajout l'image du produit dans le résumé
+const createImage = (item) => {
+    let image = document.createElement("img");
+    image.src = item.imageUrl;
+    image.alt = item.altTxt;
+
+    return image;
+}
+
+
+// ajout d'une fonction qui change la quantité du produit
+const changeQuantity = (item) => {
+    let input = document.createElement("input");
+    input.classList.add("itemQuantity");
+    input.type = "number";
+    input.name = "itemQuantity";
+    input.min = 1;
+    input.max = 100;
+    input.value = item.quantity;
+    
+    input.addEventListener("change", (event) => {
+        item.quantity = parseInt(event.target.value);
+        localStorage.setItem("cart", JSON.stringify(localStorageItems));
+        window.location.reload();
+    })
+
+    return input;
+}
+
+
+// ajout d'une fonction qui supprime le produit du panier
+const removeFromCart = () => {
+    let deleteItem = document.createElement("p");
+    deleteItem.classList.add("deleteItem");
+    deleteItem.textContent = "Supprimer";
+    
+    deleteItem.addEventListener('click', (e) => {
+        let deleteButtons = document.getElementsByClassName("deleteItem");
+        let cartStorage = JSON.parse(localStorage.getItem("cart"))
+    
+        for (let i = 0; i < deleteButtons.length; i++) {
+            let productToBeRemoved = e.target.closest("article");
+            productToBeRemoved.remove();
+    
+            let productToBeRemovedId = productToBeRemoved.dataset.id;
+            let productToBeRemovedColor = productToBeRemoved.dataset.color;
+            let removedFromCart = cartStorage.filter((item) => item.id !== productToBeRemovedId || item.color !== productToBeRemovedColor); 
+            
+            cartStorage = removedFromCart;
+            localStorage.setItem("cart", JSON.stringify(cartStorage));
+            window.location.reload();
+        }
+    })
+
+    return deleteItem;
 }
 

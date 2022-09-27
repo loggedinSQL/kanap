@@ -8,28 +8,13 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
         // récupérer l'élément du DOM dans lequel on intégrera les éléments du produits
         const itemImg = document.querySelector(".item__img");
 
-        // implémenter le contenu de la page en récupérant les données de l'API
-        const image = document.createElement("img");
-        image.src = value.imageUrl;
-        image.alt = value.altTxt;
-        itemImg.appendChild(image);
+        itemImg.appendChild(createImage(value));
+        showItemInfo(value);
 
-        const productName = document.querySelector("#title");
-        productName.textContent = value.name;
-
-        const productPrice = document.querySelector("#price");
-        productPrice.textContent = value.price;
-
-        const productDescription = document.querySelector("#description");
-        productDescription.textContent = value.description;
-
-        // générer les couleurs présentes dans le tableau colors
+        // ajout du menu déroulant qui permet de personnaliser le produit
         for (let color of value.colors) {
             const colors = document.querySelector("#colors");
-            const option = document.createElement("option");
-            option.value = color;
-            option.textContent = color;
-            colors.appendChild(option);
+            colors.appendChild(createOption(color));
         }
 
         document.querySelector("#addToCart").addEventListener("click", () => {
@@ -51,24 +36,29 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
                 if (localStorageContent !== undefined) {
                     let localStorageContentJSON = JSON.parse(localStorageContent) || [];
                     let productFound = false;
+                    
                     // comparer ce produit à celui qu'on souhaite enregistrer
+                    // si leur couleur et leur identifiant sont similaires :
+                    // modifier uniquement la quantité du produit
                     for (let product of localStorageContentJSON) {
-                        // si leur couleur et leur identifiant sont similaires :
                         if (product.color === data.color && product.id === data.id) {
-                            // modifier uniquement la quantité du produit
                             product.quantity = parseInt(data.quantity) + parseInt(product.quantity);
                             productFound = true;
                         }
                     }
+
                     if (productFound == false) {
                         localStorageContentJSON.push(data);
                     }
+
                     localStorage.setItem("cart", JSON.stringify(localStorageContentJSON));
+                    alert("Le produit a bien été ajouté au panier.")
 
                 } else {
                     newlocalStorage = [];
                     newlocalStorage.push(data);
                     localStorage.setItem("cart", JSON.stringify(newlocalStorage));
+                    alert("Le produit a bien été ajouté au panier.")
                 }
             }
         })
@@ -77,4 +67,37 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
     .catch(err => {
         // une erreur est survenue
     })
+
+
+    // ajouter l'image du produit
+    const createImage = (item) => {
+        const image = document.createElement("img");
+        image.src = item.imageUrl;
+        image.alt = item.altTxt;
+    
+        return image;
+    }
+
+
+    // ajouter les informations de l'article
+    const showItemInfo = (item) => {
+        const productName = document.querySelector("#title");
+        productName.textContent = item.name;
+
+        const productPrice = document.querySelector("#price");
+        productPrice.textContent = item.price;
+
+        const productDescription = document.querySelector("#description");
+        productDescription.textContent = item.description;
+    }
+
+
+    // ajouter les options de couleur du menu déroulant
+    const createOption = (colors) => {
+        const option = document.createElement("option");
+        option.value = colors;
+        option.textContent = colors;
+
+        return option;
+    }
 

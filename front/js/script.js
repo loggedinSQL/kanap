@@ -25,7 +25,7 @@ fetch("http://localhost:3000/api/products")
     })
 
 
-    // ajout de l'image du canape
+    // implémenter l'image du canape
     const createImage = (canape) => {
         const image = document.createElement("img");
         image.src = canape.imageUrl;
@@ -35,7 +35,7 @@ fetch("http://localhost:3000/api/products")
     }
     
     
-    // ajout du nom de l'article
+    // ajouter le nom du canape
     const createName = (item) => {
         const name = document.createElement("h3");
         name.classList.add("productName");
@@ -45,7 +45,7 @@ fetch("http://localhost:3000/api/products")
     }
     
     
-    // ajout de la description de l'article
+    // ajouter la description du produit
     const createDescription = (item) => {
         const description = document.createElement("p");
         description.classList.add("productDescription");

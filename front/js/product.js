@@ -9,7 +9,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
         const itemImg = document.querySelector(".item__img");
 
         itemImg.appendChild(createImage(value));
-        
+
         showItemInfo(value);
 
         // ajouter un menu déroulant qui permet de personnaliser le produit
@@ -39,10 +39,10 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
                 if (localStorageContent !== undefined) {
                     let localStorageContentJSON = JSON.parse(localStorageContent) || [];
                     let productFound = false;
-                    
+
                     // modifier la quantité en cas de similarité entre les produits
                     for (let product of localStorageContentJSON) {
-                            if (product.color === data.color && product.id === data.id) {
+                        if (product.color === data.color && product.id === data.id) {
                             product.quantity = parseInt(data.quantity) + parseInt(product.quantity);
                             productFound = true;
                         }
@@ -56,10 +56,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
                     alert("Le produit a bien été ajouté au panier.")
 
                 } else {
-                    newlocalStorage = [];
-                    newlocalStorage.push(data);
-                    localStorage.setItem("cart", JSON.stringify(newlocalStorage));
-                    alert("Le produit a bien été ajouté au panier.")
+                    createNewStorage(data);
                 }
             }
         })
@@ -70,35 +67,42 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
     })
 
 
-    // créer l'élément image de la page produit
-    const createImage = (item) => {
-        const image = document.createElement("img");
-        image.src = item.imageUrl;
-        image.alt = item.altTxt;
-    
-        return image;
-    }
+// créer l'élément image de la page produit
+const createImage = (product) => {
+    const image = document.createElement("img");
+    image.src = product.imageUrl;
+    image.alt = product.altTxt;
+
+    return image;
+}
 
 
-    // ajouter les informations de l'article à la page
-    const showItemInfo = (item) => {
-        const productName = document.querySelector("#title");
-        productName.textContent = item.name;
+// ajouter les informations de l'article à la page
+const showItemInfo = (product) => {
+    const productName = document.querySelector("#title");
+    productName.textContent = product.name;
 
-        const productPrice = document.querySelector("#price");
-        productPrice.textContent = item.price;
+    const productPrice = document.querySelector("#price");
+    productPrice.textContent = product.price;
 
-        const productDescription = document.querySelector("#description");
-        productDescription.textContent = item.description;
-    }
+    const productDescription = document.querySelector("#description");
+    productDescription.textContent = product.description;
+}
 
 
-    // créer les options de couleur du menu déroulant
-    const createOption = (colors) => {
-        const option = document.createElement("option");
-        option.value = colors;
-        option.textContent = colors;
+// créer les options de couleur du menu déroulant
+const createOption = (colors) => {
+    const option = document.createElement("option");
+    option.value = colors;
+    option.textContent = colors;
 
-        return option;
-    }
+    return option;
+}
 
+
+const createNewStorage = (product) => {
+    newlocalStorage = [];
+    newlocalStorage.push(product);
+    localStorage.setItem("cart", JSON.stringify(newlocalStorage));
+    alert("Le produit a bien été ajouté au panier.")
+}

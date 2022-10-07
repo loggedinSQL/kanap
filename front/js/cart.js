@@ -59,7 +59,7 @@ for (let data of localStorageItems) {
             let quantity = document.createElement("p");
             quantity.textContent = "Qté :";
             divContentSettingsQuantity.appendChild(quantity);
-  
+
             divContentSettingsQuantity.appendChild(changeQuantity(data));
 
 
@@ -67,7 +67,7 @@ for (let data of localStorageItems) {
             divContentSettingsDelete.classList.add("cart__item__content__settings__delete");
             divContentSettings.appendChild(divContentSettingsDelete);
 
-            divContentSettingsDelete.appendChild(removeFromCart(data)); 
+            divContentSettingsDelete.appendChild(removeFromCart(data));
 
 
             // afficher la quantité totale et le tarif total du panier
@@ -117,7 +117,7 @@ for (let data of localStorageItems) {
                         } else {
                             firstNameErrorMsg.textContent = "";
                         }
-                        
+
 
                         if (!regName.test(lastName)) {
                             lastNameErrorMsg.textContent = "Veuillez ressaisir votre nom de famille";
@@ -125,7 +125,7 @@ for (let data of localStorageItems) {
                         } else {
                             lastNameErrorMsg.textContent = "";
                         }
-                        
+
 
                         if (!regAddress.test(address)) {
                             addressErrorMsg.textContent = "Veuillez ressaisir votre adresse";
@@ -133,7 +133,7 @@ for (let data of localStorageItems) {
                         } else {
                             addressErrorMsg.textContent = "";
                         }
-                        
+
 
                         if (!regAddress.test(city)) {
                             cityErrorMsg.textContent = "Veuillez ressaisir le nom de votre ville";
@@ -141,16 +141,16 @@ for (let data of localStorageItems) {
                         } else {
                             cityErrorMsg.textContent = "";
                         }
-                        
-                        
+
+
                         if (!regEmail.test(email)) {
                             emailErrorMsg.textContent = "Veuillez ressaisir votre email";
                             isValid = false;
                         } else {
                             emailErrorMsg.textContent = "";
                         }
-                        
-                        
+
+
                         if (isValid) {
                             let products = JSON.parse(localStorage.getItem("cart"));
                             let productsId = [];
@@ -170,24 +170,7 @@ for (let data of localStorageItems) {
                                 products: productsId
                             }
 
-                            fetch("http://localhost:3000/api/products/order", {
-                                method: 'POST',
-                                headers: {
-                                    'Accept': 'application/json',
-                                    'Content-Type': 'application/json'
-                                },
-                                body: JSON.stringify(order)
-                            })
-                                .then(res => res.json())
-                                .then(value => {
-                                    // vider le localstorage
-                                    localStorage.clear();
-                                    // configurer la redirection avec le numéro de commande
-                                    window.location.assign("confirmation.html?orderId=" + value.orderId);
-                                })
-                                .catch(err => {
-                                    // une erreur est survenue
-                                })
+                            postRequest(order);
                         }
                     }
                 }
@@ -200,7 +183,7 @@ for (let data of localStorageItems) {
 }
 
 
-// ajout l'image du produit dans le résumé
+// ajout de l'image du produit dans le résumé
 const createImage = (item) => {
     let image = document.createElement("img");
     image.src = item.imageUrl;
@@ -219,7 +202,7 @@ const changeQuantity = (item) => {
     input.min = 1;
     input.max = 100;
     input.value = item.quantity;
-    
+
     input.addEventListener("change", (event) => {
         item.quantity = parseInt(event.target.value);
         localStorage.setItem("cart", JSON.stringify(localStorageItems));
@@ -235,19 +218,19 @@ const removeFromCart = () => {
     let deleteItem = document.createElement("p");
     deleteItem.classList.add("deleteItem");
     deleteItem.textContent = "Supprimer";
-    
+
     deleteItem.addEventListener('click', (e) => {
         let deleteButtons = document.getElementsByClassName("deleteItem");
         let cartStorage = JSON.parse(localStorage.getItem("cart"))
-    
+
         for (let i = 0; i < deleteButtons.length; i++) {
             let productToBeRemoved = e.target.closest("article");
             productToBeRemoved.remove();
-    
+
             let productToBeRemovedId = productToBeRemoved.dataset.id;
             let productToBeRemovedColor = productToBeRemoved.dataset.color;
-            let removedFromCart = cartStorage.filter((item) => item.id !== productToBeRemovedId || item.color !== productToBeRemovedColor); 
-            
+            let removedFromCart = cartStorage.filter((item) => item.id !== productToBeRemovedId || item.color !== productToBeRemovedColor);
+
             cartStorage = removedFromCart;
             localStorage.setItem("cart", JSON.stringify(cartStorage));
             window.location.reload();
@@ -255,5 +238,27 @@ const removeFromCart = () => {
     })
 
     return deleteItem;
+}
+
+// requête POSt : récupérer le numéro de commande.
+const postRequest = (order) => {
+    fetch("http://localhost:3000/api/products/order", {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(order)
+    })
+        .then(res => res.json())
+        .then(value => {
+            // vider le localstorage
+            localStorage.clear();
+            // configurer la redirection avec le numéro de commande
+            window.location.assign("confirmation.html?orderId=" + value.orderId);
+        })
+        .catch(err => {
+            // une erreur est survenue
+        })
 }
 

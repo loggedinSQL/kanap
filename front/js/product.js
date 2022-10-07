@@ -100,6 +100,7 @@ const createOption = (colors) => {
 }
 
 
+// créer un tableau pour y intégrer le nouveau produit
 const createNewStorage = (product) => {
     newlocalStorage = [];
     newlocalStorage.push(product);

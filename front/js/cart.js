@@ -27,6 +27,7 @@ for (let data of localStorageItems) {
             divImage.appendChild(createImage(value));
 
 
+
             let divContent = document.createElement("div");
             divContent.classList.add("cart__item__content");
             article.appendChild(divContent);
@@ -35,17 +36,10 @@ for (let data of localStorageItems) {
             divContentDescription.classList.add("cart__item__content__description");
             divContent.appendChild(divContentDescription);
 
-            let name = document.createElement("h2");
-            name.textContent = value.name;
-            divContentDescription.appendChild(name);
+            divContentDescription.appendChild(createName(value));
+            divContentDescription.appendChild(createColor(data));
+            divContentDescription.appendChild(createPrice(value));
 
-            let color = document.createElement("p");
-            color.textContent = data.color;
-            divContentDescription.appendChild(color);
-
-            let price = document.createElement("p");
-            price.textContent = value.price + "€";
-            divContentDescription.appendChild(price);
 
 
             let divContentSettings = document.createElement("div");
@@ -56,11 +50,9 @@ for (let data of localStorageItems) {
             divContentSettingsQuantity.classList.add("cart__item__content__settings__quantity");
             divContentSettings.appendChild(divContentSettingsQuantity);
 
-            let quantity = document.createElement("p");
-            quantity.textContent = "Qté :";
-            divContentSettingsQuantity.appendChild(quantity);
-
+            divContentSettingsQuantity.appendChild(createQuantityElement());
             divContentSettingsQuantity.appendChild(changeQuantity(data));
+
 
 
             let divContentSettingsDelete = document.createElement("div");
@@ -70,12 +62,14 @@ for (let data of localStorageItems) {
             divContentSettingsDelete.appendChild(removeFromCart(data));
 
 
+
             // afficher la quantité totale et le tarif total du panier
             totalQuantity += parseInt(data.quantity);
             document.getElementById("totalQuantity").textContent = totalQuantity;
 
             totalPrice += value.price * data.quantity;
             document.getElementById("totalPrice").textContent = totalPrice;
+
 
 
             // cliquer sur le bouton pour valider la commande
@@ -178,33 +172,69 @@ for (let data of localStorageItems) {
 
         })
         .catch(err => {
-            // une erreur est survenue
+            err.status(400).json({ message: 'une erreur est survenue' });
         })
 }
 
 
-// ajout de l'image du produit dans le résumé
-const createImage = (item) => {
+// créer l'élément image (img) de la fiche produit
+const createImage = (product) => {
     let image = document.createElement("img");
-    image.src = item.imageUrl;
-    image.alt = item.altTxt;
+    image.src = product.imageUrl;
+    image.alt = product.altTxt;
 
     return image;
 }
 
 
-// ajout d'une fonction qui change la quantité du produit
-const changeQuantity = (item) => {
+// créer l'élément name (h2) de la fiche produit
+const createName = (product) => {
+    let name = document.createElement("h2");
+    name.textContent = product.name;
+
+    return name;
+}
+
+
+// créer l'élément color (p) de la fiche produit
+const createColor = (product) => {
+    let color = document.createElement("p");
+    color.textContent = product.color;
+
+    return color
+}
+
+
+// créer l'élément prix (p) de la fiche produit
+const createPrice = (product) => {
+    let price = document.createElement("p");
+    price.textContent = product.price + "€";
+
+    return price;
+}
+
+
+// créer l'élément quantité (p) de la fiche produit
+const createQuantityElement = () => {
+    let quantity = document.createElement("p");
+    quantity.textContent = "Qté :";
+
+    return quantity;
+}
+
+
+// créer un input qui modifiera la quantité du produit dans le panier
+const changeQuantity = (product) => {
     let input = document.createElement("input");
     input.classList.add("itemQuantity");
     input.type = "number";
     input.name = "itemQuantity";
     input.min = 1;
     input.max = 100;
-    input.value = item.quantity;
+    input.value = product.quantity;
 
     input.addEventListener("change", (event) => {
-        item.quantity = parseInt(event.target.value);
+        product.quantity = parseInt(event.target.value);
         localStorage.setItem("cart", JSON.stringify(localStorageItems));
         window.location.reload();
     })
@@ -240,7 +270,8 @@ const removeFromCart = () => {
     return deleteItem;
 }
 
-// requête POSt : récupérer le numéro de commande.
+
+// envoyer une requête POSt et récupérer le numéro de commande (orderId)
 const postRequest = (order) => {
     fetch("http://localhost:3000/api/products/order", {
         method: 'POST',
@@ -252,13 +283,12 @@ const postRequest = (order) => {
     })
         .then(res => res.json())
         .then(value => {
-            // vider le localstorage
+            // vider le localstorage et configurer la redirection avec le numéro de commande
             localStorage.clear();
-            // configurer la redirection avec le numéro de commande
             window.location.assign("confirmation.html?orderId=" + value.orderId);
         })
         .catch(err => {
-            // une erreur est survenue
+            err.status(400).json({ message: 'une erreur est survenue' });
         })
 }
 

@@ -9,18 +9,21 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
         const itemImg = document.querySelector(".item__img");
 
         itemImg.appendChild(createImage(value));
+        
         showItemInfo(value);
 
-        // ajout du menu déroulant qui permet de personnaliser le produit
+        // ajouter un menu déroulant qui permet de personnaliser le produit
         for (let color of value.colors) {
             const colors = document.querySelector("#colors");
             colors.appendChild(createOption(color));
         }
 
+
+        // enregistrer le produit en cliquant sur ajouter au panier 
         document.querySelector("#addToCart").addEventListener("click", () => {
             const quantity = document.querySelector("#quantity");
 
-            // alerter si la couleur ou la quantité n'a pas été sélectionnées
+            // alerter l'utilisateur si la couleur ou la quantité n'a pas été sélectionnée
             if (colors.value === "" || quantity.value == 0) {
                 alert("N'oubliez pas de choisir une couleur et une quantité.");
 
@@ -32,16 +35,14 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
                     "quantity": quantity.value
                 };
 
-                // vérifier si un produit est présent dans le local storage
+                // vérifier si un produit a déjà été enregistrer dans le local storage
                 if (localStorageContent !== undefined) {
                     let localStorageContentJSON = JSON.parse(localStorageContent) || [];
                     let productFound = false;
                     
-                    // comparer ce produit à celui qu'on souhaite enregistrer
-                    // si leur couleur et leur identifiant sont similaires :
-                    // modifier uniquement la quantité du produit
+                    // modifier la quantité en cas de similarité entre les produits
                     for (let product of localStorageContentJSON) {
-                        if (product.color === data.color && product.id === data.id) {
+                            if (product.color === data.color && product.id === data.id) {
                             product.quantity = parseInt(data.quantity) + parseInt(product.quantity);
                             productFound = true;
                         }
@@ -69,7 +70,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
     })
 
 
-    // ajouter l'image du produit
+    // créer l'élément image de la page produit
     const createImage = (item) => {
         const image = document.createElement("img");
         image.src = item.imageUrl;
@@ -79,7 +80,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
     }
 
 
-    // ajouter les informations de l'article
+    // ajouter les informations de l'article à la page
     const showItemInfo = (item) => {
         const productName = document.querySelector("#title");
         productName.textContent = item.name;
@@ -92,7 +93,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
     }
 
 
-    // ajouter les options de couleur du menu déroulant
+    // créer les options de couleur du menu déroulant
     const createOption = (colors) => {
         const option = document.createElement("option");
         option.value = colors;

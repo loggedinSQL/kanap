@@ -66,7 +66,7 @@ fetch("http://localhost:3000/api/products/" + params.get("id"))
 
     })
     .catch(err => {
-        // une erreur est survenue
+        err.status(400).json({ message: 'une erreur est survenue' });
     })
 
 

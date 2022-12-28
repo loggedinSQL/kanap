@@ -1,0 +1,3 @@
+# kanap
+
+permalink: /index.html

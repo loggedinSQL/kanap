@@ -1,1 +1,1 @@
-# permalink: /index.html
+# front/html/index.html
